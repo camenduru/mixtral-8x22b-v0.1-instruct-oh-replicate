@@ -11,6 +11,9 @@ https://github.com/mistralai/mistral-src
 ### 🌐 Page
 https://mistral.ai/news/mixtral-of-experts/
 
+### 📦 Model
+https://huggingface.co/fireworks-ai/mixtral-8x22b-instruct-oh
+
 ### 🖼 Output
 
 ### 🏢 Sponsor
