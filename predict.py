@@ -51,7 +51,7 @@ class Predictor(BasePredictor):
         ignore_eos: bool = Input(default=False, description="""Whether to ignore the EOS token and continue generating
             tokens after the EOS token is generated."""),
         system_prompt: str = Input("""A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."""),
-        template: str = Input("""SYSTEM:{system_prompt} USER:{prompt}"""),
+        template: str = Input(default="""{prompt}""", description="""SYSTEM:{system_prompt} USER:{prompt}"""),
     ) -> str:
         sampling_params = SamplingParams(n=1, 
                                         best_of=None, 
