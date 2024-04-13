@@ -1,11 +1,23 @@
-import os
+import os, time, subprocess
 from cog import BasePredictor, Input
 from vllm import LLM, SamplingParams
 
+MODEL_ID = "fireworks-ai/mixtral-8x22b-instruct-oh"
+MODEL_CACHE = "checkpoints"
+MODEL_URL = "https://weights.replicate.delivery/default/fireworks-ai/mixtral-8x22b-instruct-oh/model.tar"
+
+def download_weights(url, dest):
+    start = time.time()
+    print("downloading url: ", url)
+    print("downloading to: ", dest)
+    subprocess.check_call(["pget", "-x", url, dest], close_fds=False)
+    print("downloading took: ", time.time() - start)
+
 class Predictor(BasePredictor):
     def setup(self) -> None:
-        os.system("pip install pydantic==2.7.0 -U")
-        self.llm = LLM(model="fireworks-ai/mixtral-8x22b-instruct-oh", tensor_parallel_size=8)
+        if not os.path.exists(MODEL_CACHE):
+            download_weights(MODEL_URL, MODEL_CACHE)
+        self.llm = LLM(model=MODEL_ID, download_dir=MODEL_CACHE, tensor_parallel_size=8)
     def predict(
         self,
         prompt: str = Input("What are the 20 countries with the largest population?"),
@@ -37,7 +49,6 @@ class Predictor(BasePredictor):
             Must be in [0, 1]. Set to 0 to disable this."""),
         ignore_eos: bool = Input(default=False, description="""Whether to ignore the EOS token and continue generating
             tokens after the EOS token is generated."""),
-        detokenize: bool = Input(default=True, description="""Whether to detokenize the output. Defaults to True."""),
         system_prompt: str = Input("""A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."""),
         template: str = Input("""SYSTEM:{system_prompt} USER:{prompt}"""),
     ) -> str:
@@ -62,11 +73,9 @@ class Predictor(BasePredictor):
                                         min_tokens=min_tokens,
                                         logprobs=None,
                                         prompt_logprobs=None,
-                                        detokenize=detokenize,
                                         skip_special_tokens=True,
                                         spaces_between_special_tokens=True,
-                                        logits_processors=None,
-                                        truncate_prompt_tokens=None)
+                                        logits_processors=None)
         outputs = self.llm.generate(template.format(system_prompt=system_prompt, prompt=prompt), sampling_params)
         print(template.format(system_prompt=system_prompt, prompt=prompt))
         for output in outputs:
