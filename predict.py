@@ -21,7 +21,7 @@ class Predictor(BasePredictor):
         self.llm = LLM(model="fireworks-ai/mixtral-8x22b-instruct-oh", download_dir=MODEL_CACHE, tensor_parallel_size=8)
     def predict(
         self,
-        prompt: str = Input("What are the 20 countries with the largest population?"),
+        prompt: str = Input("Tell me a story about the Cheesecake Kingdom."),
         max_tokens: int = Input(default=256, description="Maximum number of tokens to generate per output sequence."),
         min_tokens: int = Input(default=1, description="Minimum number of tokens to generate per output sequence."),
         presence_penalty: float = Input(default=0.0, description="""Float that penalizes new tokens based on whether they
@@ -51,7 +51,7 @@ class Predictor(BasePredictor):
         ignore_eos: bool = Input(default=False, description="""Whether to ignore the EOS token and continue generating
             tokens after the EOS token is generated."""),
         system_prompt: str = Input("""A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."""),
-        template: str = Input(default="""{prompt}""", description="""SYSTEM:{system_prompt} USER:{prompt}"""),
+        template: str = Input(default="""{system_prompt} {prompt}""", description="""SYSTEM:{system_prompt} USER:{prompt}"""),
     ) -> str:
         sampling_params = SamplingParams(n=1, 
                                         best_of=None, 
