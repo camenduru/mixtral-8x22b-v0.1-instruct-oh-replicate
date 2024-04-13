@@ -1,9 +1,10 @@
-import os, time, subprocess
+import os, sys, time, subprocess
 from cog import BasePredictor, Input
 from vllm import LLM, SamplingParams
+sys.path.append('/content')
+os.chdir('/content')
 
-MODEL_ID = "fireworks-ai/mixtral-8x22b-instruct-oh"
-MODEL_CACHE = "checkpoints"
+MODEL_CACHE = "/content/checkpoints"
 MODEL_URL = "https://weights.replicate.delivery/default/fireworks-ai/mixtral-8x22b-instruct-oh/model.tar"
 
 def download_weights(url, dest):
@@ -17,7 +18,7 @@ class Predictor(BasePredictor):
     def setup(self) -> None:
         if not os.path.exists(MODEL_CACHE):
             download_weights(MODEL_URL, MODEL_CACHE)
-        self.llm = LLM(model=MODEL_ID, download_dir=MODEL_CACHE, tensor_parallel_size=8)
+        self.llm = LLM(model="fireworks-ai/mixtral-8x22b-instruct-oh", download_dir=MODEL_CACHE, tensor_parallel_size=8)
     def predict(
         self,
         prompt: str = Input("What are the 20 countries with the largest population?"),
