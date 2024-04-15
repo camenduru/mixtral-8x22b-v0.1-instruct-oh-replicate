@@ -1,24 +1,9 @@
-import os, sys, time, subprocess
 from cog import BasePredictor, Input
 from vllm import LLM, SamplingParams
-sys.path.append('/content')
-os.chdir('/content')
-
-MODEL_CACHE = "/content/checkpoints"
-MODEL_URL = "https://weights.replicate.delivery/default/fireworks-ai/mixtral-8x22b-instruct-oh/model.tar"
-
-def download_weights(url, dest):
-    start = time.time()
-    print("downloading url: ", url)
-    print("downloading to: ", dest)
-    subprocess.check_call(["pget", "-x", url, dest], close_fds=False)
-    print("downloading took: ", time.time() - start)
 
 class Predictor(BasePredictor):
     def setup(self) -> None:
-        if not os.path.exists(MODEL_CACHE):
-            download_weights(MODEL_URL, MODEL_CACHE)
-        self.llm = LLM(model="fireworks-ai/mixtral-8x22b-instruct-oh", download_dir=MODEL_CACHE, tensor_parallel_size=8)
+        self.llm = LLM(model="fireworks-ai/mixtral-8x22b-instruct-oh", tensor_parallel_size=8)
     def predict(
         self,
         prompt: str = Input("Tell me a story about the Cheesecake Kingdom."),
